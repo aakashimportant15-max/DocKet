@@ -1,0 +1,30 @@
+Docket — self-hostable hackathon submission and judging platform.
+
+One FastAPI + SQLite app, no external services. Teams submit projects,
+judges score them against a three-criterion rubric, and the organizer gets
+progress dashboards, advisory review-quality flags, and a CSV export.
+
+Core guarantee: judge-score isolation. A judge can read back only their own
+scores; the check runs in the backend route layer before any score query, so
+a refused request never touches score data. Verified live, including forged
+cookie and cross-judge attempts.
+
+Official checker: claimed T1 T2, verified T1 T2 (7/7 PASS).
+
+Integrity layer: conflict-of-interest declarations, review-quality flags,
+and a raw/normalized comparison view. All advisory — it never changes stored
+scores or the CSV export (verified byte-for-byte).
+
+THREAT-MODEL.md documents the attack surface in plain language, including
+the fix for CSV formula injection.
+
+T3 (community voting, comments, hidden results, random ballot order,
+anti-cheat rules) is built and verified by our own script t3_check.py
+(10/10 PASS). It is not claimed, because the official checker has no T3
+checks.
+
+T4 stretch features (REST API for external clients, webhooks, certificates,
+embeddable gallery) are not built and not claimed.
+
+Run it: docker compose up --build, then open
+http://localhost:8000/gallery. Test-account cookies are in README.md.

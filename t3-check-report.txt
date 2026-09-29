@@ -1,0 +1,19 @@
+DOGFOOD 2026 T3 self-check (not the official checker; run.py is)
+portal: http://localhost:8000
+fixtures: fixtures.json
+
+T3  vote accepted (303) ............. PASS
+T3  duplicate vote refused (400) .... PASS
+T3  vote budget enforced (3 max) .... PASS
+T3  self-vote refused (400) ......... PASS
+T3  anonymous vote refused (403) .... PASS
+T3  results hidden while open ....... PASS
+T3  ballot order differs per voter .. PASS
+T3  comment stored and escaped ...... PASS
+T3  close reveals ranked results .... PASS
+T3  reopen hides results again ...... PASS
+
+cleanup: removed 3/3 test votes (window left OPEN)
+cleanup: test comment(s) remain on /gallery/2 - comments have no delete route; re-seed to clear
+
+T3 (own checker): 10/10 PASS
