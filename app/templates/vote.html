@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}Community Vote · Docket{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Community vote</h1>
+  <p class="hero-subtitle">One vote per project, up to {{ max_votes }} projects.
+  The order below is shuffled for you personally, so every voter sees a
+  different ballot. Results stay hidden until the voting window closes.</p>
+</section>
+
+{% if state == 'open' %}
+<div class="notice notice-ok">
+  <strong>Voting is open.</strong>
+  You have <strong>{{ votes_remaining }} of {{ max_votes }}</strong> votes remaining.
+  {% if voting_closes %}The window closes {{ voting_closes.strftime("%Y-%m-%d %H:%M") }} UTC.{% endif %}
+</div>
+{% elif state == 'before' %}
+<div class="notice">
+  <strong>Voting has not opened yet.</strong>
+  {% if voting_opens %}It opens {{ voting_opens.strftime("%Y-%m-%d %H:%M") }} UTC.{% endif %}
+</div>
+{% else %}
+<div class="notice">
+  <strong>Voting is closed.</strong> The results are public now —
+  <a href="/results">see the results</a>.
+</div>
+{% endif %}
+
+<div class="panel">
+  <div class="panel-header">
+    <h2>Ballot</h2>
+    <span class="pill pill-neutral">{{ projects|length }} projects</span>
+  </div>
+  {% if projects %}
+  <ul class="ballot-list">
+    {% for p in projects %}
+    <li class="ballot-row">
+      <div class="ballot-info">
+        <a class="ballot-title" href="/gallery/{{ p.id }}">{{ p.title }}</a>
+        <span class="muted">{{ p.team.name }} · {{ p.track or 'Untracked' }}</span>
+      </div>
+      <div class="ballot-action">
+      {% if p.team_id in own_team_ids %}
+        <span class="pill pill-neutral" title="You are a member of this project's team, so you cannot vote for it.">Your team</span>
+      {% elif p.id in voted_project_ids %}
+        <span class="pill pill-ok">Your vote</span>
+        {% if state == 'open' %}
+        <form method="post" action="/projects/{{ p.id }}/unvote" class="inline-form">
+          <button type="submit" class="btn btn-outline btn-sm">Remove</button>
+        </form>
+        {% endif %}
+      {% elif state == 'open' and votes_remaining > 0 %}
+        <form method="post" action="/projects/{{ p.id }}/vote" class="inline-form">
+          <button type="submit" class="btn btn-primary btn-sm">Vote</button>
+        </form>
+      {% elif state == 'open' %}
+        <button type="button" class="btn btn-outline btn-sm" disabled
+          title="No votes left — remove one first.">Vote</button>
+      {% endif %}
+      </div>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty">No projects to vote on yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

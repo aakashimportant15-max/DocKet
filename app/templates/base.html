@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Docket{% endblock %}</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="wordmark" href="/gallery">Docket</a>
+  <div class="topbar-right">
+    {% if user %}
+      <span class="user-chip"><strong>{{ user.name }}</strong><span class="role-tag">{{ user.role }}</span></span>
+      <form method="post" action="/auth/logout" class="inline-form">
+        <button type="submit" class="link-button">Log out</button>
+      </form>
+    {% else %}
+      <a class="btn btn-primary btn-sm" href="/login">Log in</a>
+    {% endif %}
+  </div>
+</header>
+<div class="shell">
+  {% if user %}
+  <aside class="sidebar">
+    <nav>
+      <p class="nav-group">General</p>
+      <a href="/gallery" class="{{ 'active' if active_nav == 'gallery' }}">Project Gallery</a>
+      <a href="/results" class="{{ 'active' if active_nav == 'results' }}">Community Results</a>
+      {% if user.role == 'participant' %}
+      <p class="nav-group">For Participants</p>
+      <a href="/teams/mine" class="{{ 'active' if active_nav == 'my_team' }}">My Team</a>
+      <a href="/projects/new" class="{{ 'active' if active_nav == 'submit' }}">My Submission</a>
+      <a href="/vote" class="{{ 'active' if active_nav == 'vote' }}">Community Vote</a>
+      {% endif %}
+      {% if user.role == 'judge' %}
+      <p class="nav-group">For Judges</p>
+      <a href="/judge/projects" class="{{ 'active' if active_nav == 'judge_projects' }}">Assigned Projects</a>
+      <a href="/judge/reviews" class="{{ 'active' if active_nav == 'judge_reviews' }}">My Reviews</a>
+      {% endif %}
+      {% if user.role == 'organizer' %}
+      <p class="nav-group">For Organizers</p>
+      <a href="/organizer/events" class="{{ 'active' if active_nav == 'manage_event' }}">Manage Event</a>
+      <a href="/organizer/judging/progress" class="{{ 'active' if active_nav == 'judging_progress' }}">Judging Progress</a>
+      <a href="/api/export.csv">Export CSV</a>
+      {% endif %}
+    </nav>
+  </aside>
+  {% endif %}
+  <main class="content {{ 'content-full' if not user }}">
+    {% block content %}{% endblock %}
+  </main>
+</div>
+<script src="/static/app.js" defer></script>
+</body>
+</html>

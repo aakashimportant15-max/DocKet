@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Log in — Docket{% endblock %}
+{% block content %}
+<div class="form-narrow">
+  <section class="hero" style="padding:22px 24px 18px">
+    <h1>Log in</h1>
+    <p class="hero-subtitle" style="margin:0">Welcome back to Docket.</p>
+  </section>
+  <div class="panel">
+    <form method="post" action="/auth/login" class="stack">
+      <label>Email
+        <input type="email" name="email" required autocomplete="username">
+      </label>
+      <label>Password
+        <input type="password" name="password" required autocomplete="current-password">
+      </label>
+      <button type="submit" class="btn btn-primary" style="margin-top:18px">Log in</button>
+    </form>
+    <p class="muted" style="margin:16px 0 0">Seeded test accounts all use the password
+    <code>dogfood</code>, for example <code>participant@example.org</code>.</p>
+  </div>
+</div>
+{% endblock %}

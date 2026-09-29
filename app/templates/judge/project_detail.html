@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Review · {{ project.title }} · Docket{% endblock %}
+{% block content %}
+<p><a class="back-link" href="/judge/projects">← Back to review queue</a></p>
+
+<div class="detail-banner">
+  <div class="detail-banner-body">
+    <span class="pill pill-track">{{ project.track }}</span>
+    <h1>{{ project.title }}</h1>
+    <p class="detail-team">{{ project.team.name }}</p>
+  </div>
+</div>
+
+{% if saved %}
+<div class="notice notice-ok">Review saved. You can keep editing until judging closes.</div>
+{% endif %}
+{% if conflict_saved %}
+<div class="notice notice-ok">Conflict declaration saved. The organizer can see it on the judging progress dashboard.</div>
+{% endif %}
+
+<div class="grid-2">
+  <div class="panel">
+    <div class="panel-header"><h2>About this project</h2></div>
+    <p class="detail-summary">{{ project.summary }}</p>
+    <table class="kv">
+      <tr><th>Team</th><td>{{ project.team.name }}</td></tr>
+      <tr><th>Track</th><td>{{ project.track }}</td></tr>
+      <tr><th>Submitted</th><td>{{ project.submitted_at.strftime("%d %b %Y, %H:%M UTC") }}</td></tr>
+      <tr><th>Repository</th>
+        <td>{% if project.repo_url %}<a href="{{ project.repo_url }}">{{ project.repo_url }}</a>{% else %}—{% endif %}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header"><h2>Your review</h2>
+      {% if score %}<span class="pill pill-ok">Saved {{ score.updated_at.strftime("%d %b %H:%M UTC") }}</span>{% endif %}
+    </div>
+    <form method="post" action="/judge/projects/{{ project.id }}/review" class="stack">
+      {% for c in criteria %}
+      <div class="criterion">
+        <div class="criterion-head">
+          <label for="crit-{{ c.id }}">{{ c.name|capitalize }}</label>
+          <span class="criterion-scale">0–{{ c.max_score }} · weight ×{{ "%g"|format(c.weight) }}</span>
+        </div>
+        <input id="crit-{{ c.id }}" name="crit_{{ c.id }}" type="number" min="0"
+               max="{{ c.max_score }}" step="1" required
+               value="{{ existing.get(c.name, '') }}">
+      </div>
+      {% endfor %}
+      <div>
+        <label for="comment">Comment for the organizer (optional)</label>
+        <textarea id="comment" name="comment" rows="4"
+                  placeholder="What worked, what didn't, anything you'd flag.">{{ score.comment if score and score.comment else '' }}</textarea>
+      </div>
+      <button class="btn btn-primary btn-block" type="submit">
+        {{ 'Update review' if score else 'Submit review' }}
+      </button>
+    </form>
+    <p class="hint">Judges cannot see each other's scores or comments. Only you and the
+    organizer can read this review.</p>
+  </div>
+</div>
+
+{% if assignment and user.role == "judge" %}
+<div class="panel">
+  <div class="panel-header"><h2>Conflict of interest</h2>
+    {% if assignment.conflict_declared %}
+    <span class="conflict-badge">conflict declared</span>
+    {% endif %}
+  </div>
+  {% if assignment.conflict_declared %}
+  <p class="hint">You declared a conflict on this project
+    {% if assignment.conflict_declared_at %}
+    on {{ assignment.conflict_declared_at.strftime("%d %b %Y, %H:%M UTC") }}
+    {% endif %}
+    {% if assignment.conflict_note %}— "{{ assignment.conflict_note }}"{% endif %}.
+  Declaring a conflict is advisory: it does not stop you from submitting or
+  updating a review, and the organizer decides what to do about it.</p>
+  {% else %}
+  <p class="hint">If you have a personal or professional conflict with this
+  project (team members, employer, etc.), declare it here so the organizer can
+  reassign or take it into account. Declaring does not stop you from
+  reviewing — the two are independent.</p>
+  {% endif %}
+  <form method="post" action="/judge/projects/{{ project.id }}/conflict" class="stack">
+    <div>
+      <label for="conflict_note">Note for the organizer (optional)</label>
+      <input id="conflict_note" name="conflict_note" type="text" maxlength="255"
+             placeholder="Short reason, e.g. teammate's employer"
+             value="{{ assignment.conflict_note or '' }}">
+    </div>
+    <button class="btn btn-outline" type="submit">
+      {% if assignment.conflict_declared %}Update conflict declaration{% else %}I have a conflict with this project{% endif %}
+    </button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}

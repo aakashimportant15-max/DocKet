@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}{{ project.title }} — Docket{% endblock %}
+{% block content %}
+<a class="back-link" href="/gallery">&larr; Back to gallery</a>
+<section class="detail-banner {{ track_class(project.track) }}">
+  <span class="track-pill">{{ project.track or 'Untracked' }}</span>
+  <h1>{{ project.title }}</h1>
+  <p style="margin:0; opacity:0.92">by {{ project.team.name }}</p>
+</section>
+
+<div class="panel">
+  <h2>About this project</h2>
+  <p style="margin:6px 0 0">{{ project.summary }}</p>
+</div>
+
+<div class="panel">
+  <h2>Team</h2>
+  <p style="margin:4px 0 10px">
+    <span class="avatar-dot {{ track_class(project.track) }}" style="margin-right:6px">{{ project.team.name[0]|upper }}</span>
+    <strong>{{ project.team.name }}</strong>
+  </p>
+  {% if members %}
+  <table class="data">
+    <thead><tr><th>Member</th><th>Email</th></tr></thead>
+    <tbody>
+      {% for member in members %}
+      <tr><td>{{ member.name }}</td><td class="muted">{{ member.email }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No members listed for this team.</p>
+  {% endif %}
+</div>
+
+<div class="panel">
+  <h2>Submission</h2>
+  <table class="data">
+    <tbody>
+      <tr><th>Submitted</th><td>{{ project.submitted_at.strftime("%Y-%m-%d %H:%M UTC") }}</td></tr>
+      <tr><th>Last updated</th><td>{{ project.updated_at.strftime("%Y-%m-%d %H:%M UTC") }}</td></tr>
+      <tr><th>Track</th><td>{{ project.track or 'Untracked' }}</td></tr>
+      {% if project.repo_url %}
+      <tr><th>Repository</th><td><a href="{{ project.repo_url }}" rel="noopener">{{ project.repo_url }}</a></td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+<div class="panel" id="comments">
+  <div class="panel-header">
+    <h2>Community comments</h2>
+    <span class="pill pill-neutral">{{ comments|length }} comment{{ '' if comments|length == 1 else 's' }}</span>
+  </div>
+  {% if user %}
+  <form method="post" action="/projects/{{ project.id }}/comments" class="comment-form">
+    <label for="comment-body" class="muted">Add a comment (up to {{ max_comment_length }} characters). Plain text; it is shown as typed.</label>
+    <textarea id="comment-body" name="body" rows="2" maxlength="{{ max_comment_length }}" required placeholder="Nice work — the onboarding flow was very smooth."></textarea>
+    <button type="submit" class="btn btn-primary btn-sm">Post comment</button>
+  </form>
+  {% else %}
+  <p class="muted"><a href="/login">Log in</a> to leave a comment.</p>
+  {% endif %}
+  {% if comments %}
+  <ul class="comment-list">
+    {% for c in comments %}
+    <li class="comment">
+      <p class="comment-meta"><strong>{{ c.author.name }}</strong>
+        <span class="muted">· {{ c.created_at.strftime("%Y-%m-%d %H:%M UTC") }}</span></p>
+      <p class="comment-body">{{ c.body }}</p>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="muted">No comments yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

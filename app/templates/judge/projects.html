@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Assigned Projects · Docket{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>Assigned projects</h1>
+    <p class="hero-sub">Your review batch for Sample Hack 2026. Open a project, read the
+    summary, and score it against the rubric. Your scores stay private to you and the organizer.</p>
+  </div>
+</section>
+
+<div class="panel">
+  <div class="panel-header"><h2>Review queue</h2>
+    <span class="pill pill-{{ 'ok' if rows and rows|selectattr('score')|list else 'live' }}">
+      {{ rows|selectattr('score')|list|length }} / {{ rows|length }} reviewed
+    </span>
+  </div>
+  {% if rows %}
+  <table>
+    <thead><tr>
+      <th>Project</th><th>Track</th><th>Team</th><th>Status</th><th></th>
+    </tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td class="t-main">{{ r.assignment.project.title }}</td>
+        <td><span class="pill pill-track">{{ r.assignment.project.track }}</span></td>
+        <td>{{ r.assignment.project.team.name }}</td>
+        <td>
+          {% if r.score %}
+            <span class="pill pill-ok">Reviewed</span>
+          {% else %}
+            <span class="pill pill-live">Awaiting review</span>
+          {% endif %}
+        </td>
+        <td class="t-actions">
+          {% if r.score %}
+            <a class="btn btn-outline" href="/judge/projects/{{ r.assignment.project_id }}">Edit review</a>
+          {% else %}
+            <a class="btn btn-primary" href="/judge/projects/{{ r.assignment.project_id }}">Score project</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No projects have been assigned to you yet. The organizer will balance the
+  judging batches across the panel.</p>
+  {% endif %}
+</div>
+{% endblock %}

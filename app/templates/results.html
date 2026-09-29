@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Community Results · Docket{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Community results</h1>
+  <p class="hero-subtitle">The community vote, ranked by votes received.
+  Results are hidden while the voting window is open, so nobody campaigns
+  against a live leaderboard.</p>
+</section>
+
+{% if state != 'closed' %}
+<div class="panel">
+  <h2>Results are hidden</h2>
+  <p class="muted" style="margin-bottom:0">
+    Results are hidden until voting closes on
+    {% if voting_closes %}{{ voting_closes.strftime("%Y-%m-%d %H:%M") }} UTC{% else %}the end of the event{% endif %}.
+    The ranked list will appear here the moment the window closes.
+  </p>
+</div>
+{% else %}
+<div class="panel">
+  <div class="panel-header">
+    <h2>Final ranking</h2>
+    <span class="pill pill-live">Voting closed</span>
+  </div>
+  {% if rows %}
+  <ol class="result-list">
+    {% for r in rows %}
+    <li class="result-row">
+      <span class="result-rank">{{ loop.index }}</span>
+      <a class="result-title" href="/gallery/{{ r.project.id }}">{{ r.project.title }}</a>
+      <span class="result-meta muted">{{ r.project.team.name }} · {{ r.project.track or 'Untracked' }}</span>
+      <span class="result-count">{{ r.votes }} vote{{ '' if r.votes == 1 else 's' }}</span>
+    </li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <p class="empty">No projects to rank.</p>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

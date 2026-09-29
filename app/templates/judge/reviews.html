@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}My Reviews · Docket{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>My reviews</h1>
+    <p class="hero-sub">Every score you have submitted. This is exactly what the organizer
+    sees from you — and nothing from any other judge.</p>
+  </div>
+</section>
+
+<div class="panel">
+  <div class="panel-header"><h2>Submitted scores</h2>
+    <span class="pill pill-ok">{{ rows|length }} review{{ 's' if rows|length != 1 }}</span>
+  </div>
+  {% if rows %}
+  <table>
+    <thead><tr>
+      <th>Project</th>
+      {% for c in criteria %}<th>{{ c.name|capitalize }}</th>{% endfor %}
+      <th>Weighted total</th><th>Comment</th><th>Reviewed</th><th></th>
+    </tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td class="t-main">{{ r.score.project.title }}</td>
+        {% for c in criteria %}
+        <td>{{ r.criteria.get(c.name, '—') }}</td>
+        {% endfor %}
+        <td><strong>{{ r.total }}</strong></td>
+        <td class="t-comment">{{ r.score.comment or '—' }}</td>
+        <td>{{ r.score.updated_at.strftime("%d %b %H:%M") }}</td>
+        <td class="t-actions">
+          <a class="btn btn-outline" href="/judge/projects/{{ r.score.project_id }}">Edit</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">You haven't submitted any reviews yet. Open a project from
+  <a href="/judge/projects">your review queue</a> to get started.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Manage Event · Docket{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>Manage event</h1>
+    <p class="hero-sub">The events running on this portal and the state of their
+    submission windows.</p>
+  </div>
+</section>
+
+<div class="panel">
+  <div class="panel-header"><h2>Events</h2></div>
+  {% if rows %}
+  <table>
+    <thead><tr><th>Event</th><th>Closes</th><th>Status</th><th>Submissions</th></tr></thead>
+    <tbody>
+      {% for r in rows %}
+      <tr>
+        <td class="t-main">{{ r.event.name }}</td>
+        <td>{{ r.event.submissions_close.strftime("%d %b %Y, %H:%M UTC") }}</td>
+        <td>
+          {% if r.closed %}
+            <span class="pill pill-neutral">Closed</span>
+          {% else %}
+            <span class="pill pill-ok">Open</span>
+          {% endif %}
+        </td>
+        <td>{{ r.event.projects|length }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No events yet.</p>
+  {% endif %}
+  <p class="hint">Events are created through the JSON API (<code>POST /events</code>) —
+  this page is the read-only view.</p>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Project Gallery — Docket{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Project Gallery</h1>
+  <p class="hero-subtitle">Every project submitted to the event, in one place. Browse by track, search the field, and open any project for the full story.</p>
+  <div class="stat-pills">
+    <div class="stat-pill"><strong>{{ stats.projects }}</strong> project{{ '' if stats.projects == 1 else 's' }}</div>
+    <div class="stat-pill"><strong>{{ stats.teams }}</strong> team{{ '' if stats.teams == 1 else 's' }}</div>
+    <div class="stat-pill"><strong>{{ stats.tracks }}</strong> track{{ '' if stats.tracks == 1 else 's' }}</div>
+    <div class="stat-pill"><strong>{{ stats.events }}</strong> event{{ '' if stats.events == 1 else 's' }}</div>
+  </div>
+</section>
+
+<div class="toolbar">
+  <input type="search" id="gallery-search" placeholder="Search by title, summary, or team…" aria-label="Search projects">
+  <select id="gallery-track" aria-label="Filter by track">
+    <option value="">All tracks</option>
+    {% for track in tracks %}
+    <option value="{{ track }}">{{ track }}</option>
+    {% endfor %}
+  </select>
+  <div class="view-toggle" id="gallery-view-toggle">
+    <button type="button" data-view="grid" class="active">Grid</button>
+    <button type="button" data-view="list">List</button>
+  </div>
+</div>
+<p class="count-line" id="gallery-count"></p>
+
+<div class="card-grid" id="gallery-grid">
+  {% for project in projects %}
+  <article class="project-card {{ track_class(project.track) }}"
+           data-track="{{ project.track or '' }}"
+           data-search="{{ (project.title ~ ' ' ~ project.summary ~ ' ' ~ project.team.name)|lower|e }}">
+    <a class="card-header" href="/gallery/{{ project.id }}">
+      <span class="card-initials">{{ project.team.name[:2]|upper }}</span>
+      <span class="track-pill">{{ project.track or 'Untracked' }}</span>
+    </a>
+    <div class="card-body">
+      <h3><a href="/gallery/{{ project.id }}">{{ project.title }}</a></h3>
+      <p class="card-summary">{{ project.summary }}</p>
+      <div class="card-meta">
+        <span class="team">
+          <span class="avatar-dot {{ track_class(project.track) }}">{{ project.team.name[0]|upper }}</span>
+          {{ project.team.name }}
+        </span>
+        <span class="meta-icon">
+          <svg width="13" height="13" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <rect x="1.5" y="2.5" width="13" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M1.5 6.5h13M5 1v3M11 1v3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          {{ project.submitted_at.strftime("%Y-%m-%d") }}
+        </span>
+        <span class="meta-icon">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="5.5" cy="5" r="2.5" stroke="currentColor" stroke-width="1.4"/>
+            <circle cx="11" cy="6" r="2" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M1.5 13.5c.6-2.3 2.2-3.5 4-3.5s3.4 1.2 4 3.5M9.5 10.4c1.9-.5 3.9.3 5 3.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          {{ project.team.members|length }} member{{ '' if project.team.members|length == 1 else 's' }}
+        </span>
+      </div>
+      <a class="btn btn-outline btn-block" href="/gallery/{{ project.id }}">View Project &rarr;</a>
+    </div>
+  </article>
+  {% else %}
+  <p class="muted">No projects have been submitted yet.</p>
+  {% endfor %}
+</div>
+<nav class="pagination" id="gallery-pagination" aria-label="Gallery pages"></nav>
+{% endblock %}

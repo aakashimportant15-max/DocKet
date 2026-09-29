@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% block title %}Judging Progress · Docket{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>Judging progress</h1>
+    <p class="hero-sub">How the review batches are moving. Scores stay hidden until the
+    event closes, but coverage and completion are safe to watch live.</p>
+  </div>
+</section>
+
+<div class="notice">
+  <strong>Advisory signals only.</strong> The flags below are signals for your
+  attention, not accusations — review the actual scores before acting. They
+  never change a stored score, the CSV export, or what a judge sees.
+</div>
+
+{% if request.query_params.get('voting') == 'closed' %}
+<div class="flash">Voting window closed — the community results are now public on <a href="/results">Community Results</a>.</div>
+{% elif request.query_params.get('voting') == 'reopened' %}
+<div class="flash">Voting window reopened for another seven days — results are hidden again.</div>
+{% endif %}
+
+{% if voting_state %}
+<div class="panel">
+  <div class="panel-header">
+    <h2>Community voting</h2>
+    {% if voting_state == 'open' %}
+    <span class="pill pill-live">Open</span>
+    {% elif voting_state == 'before' %}
+    <span class="pill pill-neutral">Not started</span>
+    {% else %}
+    <span class="pill pill-track">Closed</span>
+    {% endif %}
+  </div>
+  <p class="muted" style="margin-top:0">
+    {% if voting_closes %}Closes {{ voting_closes.strftime("%Y-%m-%d %H:%M") }} UTC.
+    {% else %}No closing date set.{% endif %}
+    Closing reveals the public results page; reopening hides it again. Neither
+    action touches the judge scores or the CSV export.
+  </p>
+  <form method="post" action="/organizer/voting/close" class="inline-form">
+    <button type="submit" class="btn btn-outline btn-sm">Close voting now</button>
+  </form>
+  <form method="post" action="/organizer/voting/reopen" class="inline-form">
+    <button type="submit" class="btn btn-outline btn-sm">Reopen for 7 more days</button>
+  </form>
+</div>
+{% endif %}
+
+<div class="view-toggle">
+  <a href="/organizer/judging/progress" {% if not normalized %}class="active"{% endif %}>Raw scores</a>
+  <a href="/organizer/judging/progress?view=normalized" {% if normalized %}class="active"{% endif %}>Normalized view</a>
+</div>
+
+<section class="stat-cards">
+  <div class="stat-card">
+    <span class="stat-num">{{ total_assigned }}</span>
+    <span class="stat-label">Assignments</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-num">{{ total_scored }}</span>
+    <span class="stat-label">Reviews in</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-num">{{ total_pending }}</span>
+    <span class="stat-label">Still pending</span>
+  </div>
+  <div class="stat-card">
+    <span class="stat-num">{{ completion }}%</span>
+    <span class="stat-label">Complete</span>
+  </div>
+</section>
+
+<div class="panel">
+  <div class="panel-header"><h2>Coverage by judge</h2>
+    <span class="pill pill-neutral">{{ judge_rows|length }} judges</span>
+  </div>
+  {% if judge_rows %}
+  <table>
+    <thead><tr><th>Judge</th><th>Assigned</th><th>Reviewed</th><th>Progress</th><th>Quality flags</th></tr></thead>
+    <tbody>
+      {% for r in judge_rows %}
+      <tr>
+        <td class="t-main">{{ r.judge.name }}
+          <span class="muted">{{ r.judge.judge_code }}</span>
+          {% if conflict_count_by_judge.get(r.judge.id) %}
+          <span class="conflict-badge" title="This judge declared a conflict of interest on {{ conflict_count_by_judge[r.judge.id] }} assignment(s).">conflict ×{{ conflict_count_by_judge[r.judge.id] }}</span>
+          {% endif %}
+        </td>
+        <td>{{ r.assigned }}</td>
+        <td>{{ r.scored }}</td>
+        <td class="t-bar">
+          <div class="bar"><div class="bar-fill"
+            style="width: {{ (100 * r.scored / r.assigned) | round | int if r.assigned else 0 }}%"></div></div>
+        </td>
+        <td>
+          {% for f in flags_by_judge.get(r.judge.id, []) %}
+          <span class="flag-badge" title="{{ f.detail }}">{{ f.label }}</span>
+          {% else %}
+          <span class="muted">—</span>
+          {% endfor %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p class="hint">Hover a flag for the one-sentence reason it was raised. Flags are
+  computed from the stored reviews with fixed, explainable rules.</p>
+  {% else %}
+  <p class="empty">No judges have been assigned any projects yet.</p>
+  {% endif %}
+</div>
+
+<div class="panel">
+  <div class="panel-header"><h2>Reviews per project</h2>
+    <span class="pill pill-neutral">{{ project_rows|length }} projects</span>
+  </div>
+  {% if project_rows %}
+  <table>
+    <thead><tr><th>Project</th><th>Team</th><th>Track</th><th>Reviews</th></tr></thead>
+    <tbody>
+      {% for r in project_rows %}
+      <tr>
+        <td class="t-main">{{ r.project.title }}</td>
+        <td>{{ r.project.team.name }}</td>
+        <td><span class="pill pill-track">{{ r.project.track }}</span></td>
+        <td>{{ r.reviews }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No projects submitted yet.</p>
+  {% endif %}
+</div>
+
+<div class="panel">
+  <div class="panel-header"><h2>Review details</h2>
+    <span class="pill pill-neutral">{{ review_rows|length }} reviews</span>
+  </div>
+  {% if normalized %}
+  <p class="hint">Overall mean weighted total: {{ "%.1f"|format(overall_mean) }}.
+  Adjusted = raw − (judge mean − overall mean), rounded to one decimal.
+  <span title="Adjusted to account for judges who score harshly or leniently overall. Raw scores remain the official record — see CSV export.">ⓘ</span></p>
+  {% endif %}
+  {% if review_rows %}
+  <table>
+    <thead><tr><th>Project</th><th>Judge</th><th>Raw total</th>{% if normalized %}<th title="Adjusted to account for judges who score harshly or leniently overall. Raw scores remain the official record — see CSV export.">Adjusted total</th>{% endif %}<th>Comment</th><th>Flags</th></tr></thead>
+    <tbody>
+      {% for r in review_rows %}
+      <tr>
+        <td class="t-main">{{ r.score.project.title }}</td>
+        <td>{{ r.score.judge.name }} <span class="muted">{{ r.score.judge.judge_code }}</span></td>
+        <td>{{ "%g"|format(r.raw) }}</td>
+        {% if normalized %}<td>{{ "%.1f"|format(r.adjusted) }}</td>{% endif %}
+        <td>{% if r.score.comment %}{{ r.score.comment }}{% else %}<span class="muted">—</span>{% endif %}</td>
+        <td>
+          {% if r.conflict %}
+          <span class="conflict-badge" title="Conflict of interest declared by this judge{% if r.conflict.conflict_note %}: {{ r.conflict.conflict_note }}{% endif %}">conflict</span>
+          {% else %}
+          <span class="muted">—</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="empty">No reviews submitted yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}My Team · Docket{% endblock %}
+{% block content %}
+<section class="hero">
+  <div>
+    <h1>My teams</h1>
+    <p class="hero-sub">Every team you belong to or created, straight from the seeded
+    fixture data.</p>
+  </div>
+</section>
+
+{% if teams %}
+  <div class="card-grid">
+    {% for t in teams %}
+    <article class="project-card">
+      <div class="card-body">
+        <h3>{{ t.name }}</h3>
+        <p class="muted">{{ t.members|length }} member{{ 's' if t.members|length != 1 }}</p>
+        <ul class="member-list">
+          {% for m in t.members %}
+          <li><span class="avatar-dot"></span>{{ m }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+{% else %}
+<div class="panel">
+  <p class="empty">You are not a member of any team yet. Teams are formed when a project
+  is submitted, or seeded from the fixture data.</p>
+</div>
+{% endif %}
+{% endblock %}
