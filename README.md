@@ -1,15 +1,12 @@
-# Docket
+# DocKet: The Judge Layer
 
-An auditable hackathon submission and judging platform, built for DOGFOOD 2026.
-
-![Docket Project Gallery](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/01_gallery.png)
+<p align="center">
+  <img src="https://readme-typing-svg.demolab.com?font=Inter&weight=600&size=20&duration=3000&pause=900&color=FF0000&center=true&vCenter=true&width=850&lines=Auditable+Hackathon+Judging+Platform;Judging+Integrity+Engine" alt="Auditable Hackathon Judging Platform | Judging Integrity Engine" />
+</p>
 
 **Claimed tiers: T1, T2. Verified tiers: T1, T2** (from a fresh `run.py` run,
-pasted below). T3 (community voting, comments, hidden results, random ballot
-order, anti-cheat rules) is **built and verified by our own `t3_check.py`
-(10/10 PASS), deliberately not claimed** — the official checker has no T3
-checks, so a T3 claim could only appear as "claimed but not verified", and
-overclaiming is penalized. T4 (stretch features) is not built and not claimed.
+pasted below). T3 (public voting) and T4 (stretch features) are not built and
+not claimed.
 
 ## Run it
 
@@ -30,13 +27,9 @@ password `dogfood`):
 | judge_a     | `Cookie: session=jdg_a_91bc`  |
 | judge_b     | `Cookie: session=jdg_b_44de`  |
 | participant | `Cookie: session=prt_2e88`    |
-| voter_a     | `Cookie: session=vot_a_51c3`  |
-| voter_b     | `Cookie: session=vot_b_7d20`  |
 
 `judge_a` acts as fixture judge `jdg_01` (Tomas Varga); `judge_b` acts as
-`jdg_02` (Wei Lindqvist). `voter_a` is a member of the team that owns project
-1 ("Glass Signal"), so the self-vote rule can be exercised; `voter_b` is on
-no team.
+`jdg_02` (Wei Lindqvist).
 
 ## Run the acceptance checker
 
@@ -61,39 +54,6 @@ T2  participant blocked ............... PASS
 T2  csv export works .................. PASS
 
 claimed T1 T2, verified T1 T2
-```
-
-Our own T3 self-check — the official checker contains no T3 checks, so T3 is
-verified by `t3_check.py` instead. It is our script (not the official one),
-it changes state while checking (votes and a comment), restores the OPEN
-window at the end, and is meant to be run against a fresh seed:
-
-```
-python t3_check.py .dogfood.toml
-```
-
-Fresh output (same fresh seed as above):
-
-```
-DOGFOOD 2026 T3 self-check (not the official checker; run.py is)
-portal: http://localhost:8000
-fixtures: fixtures.json
-
-T3  vote accepted (303) ............. PASS
-T3  duplicate vote refused (400) .... PASS
-T3  vote budget enforced (3 max) .... PASS
-T3  self-vote refused (400) ......... PASS
-T3  anonymous vote refused (403) .... PASS
-T3  results hidden while open ....... PASS
-T3  ballot order differs per voter .. PASS
-T3  comment stored and escaped ...... PASS
-T3  close reveals ranked results .... PASS
-T3  reopen hides results again ...... PASS
-
-cleanup: removed 3/3 test votes (window left OPEN)
-cleanup: test comment(s) remain on /gallery/2 - comments have no delete route; re-seed to clear
-
-T3 (own checker): 10/10 PASS
 ```
 
 ## Tech stack
@@ -128,34 +88,8 @@ already-rendered gallery DOM (search, filter, grid/list toggle, pagination).
   adjusted toward the judge's own mean). None of it changes the CSV export
   or a judge's own score view: both were verified byte-for-byte identical to
   the pre-layer responses (see JUDGING.md).
-
-![Organizer Progress — Raw Scores](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/02_organizer_progress_raw.png)
-
-![Organizer Progress — Normalized Scores](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/03_organizer_progress_normalized.png)
-![Judge Conflict of Interest Declaration](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/04_coi_declared.png)
-
-![Organizer Conflict of Interest Badge](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/05_conflict_badge_organizer_view.png)
-
-- **T3 — community voting, built and verified by our own checker, not
-  claimed.** A participant-only ballot (`/vote`) in a per-voter shuffled
-  order with a 3-vote budget and a self-vote block; public comments on
-  `/gallery/{id}` (1–500 chars, escaped on render); a public `/results` page
-  that contains no counts or ranking at all until the window closes; and
-  organizer-only close/reopen controls on the judging-progress page. The
-  official checker has no T3 checks, so this tier is verified by
-  `t3_check.py` (10/10 PASS) and deliberately left out of `claimed`.
-
-![Community Voting Ballot](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/06_ballot.png)
-
-![Community Results — Hidden While Voting Is Open](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/07_results_hidden.png)
-
-![Community Results — Revealed After Voting Closes](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/08_results_revealed.png)
-
-![Community Comments](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/09_comments.png)
-
-![Organizer Voting Controls](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/10_organizer_voting_controls.png)
-- **Not built.** T4 stretch features (REST API for external clients,
-  webhooks, certificates, embeddable gallery).
+- **Not built.** T3 community voting and T4 stretch features (REST API for
+  external clients, webhooks, certificates, embeddable gallery).
 
 ## Known limitations and design choices
 
@@ -177,7 +111,7 @@ Each of these was a choice, not an oversight; none is required by spec.md:
   seeded exactly as written, not cleaned up.
 - **Seeded score timestamps anchor to the project's submission time**,
   because fixture scores carry no timestamps of their own.
-- **Fixed, non-expiring session tokens** for the six seeded test accounts,
+- **Fixed, non-expiring session tokens** for the four seeded test accounts,
   because the acceptance checker reuses the same cookie for a whole grading
   run. Logout clears the cookie only; the stored token is kept.
 - **Client-side gallery pagination/filtering over fully server-rendered
@@ -192,21 +126,6 @@ Each of these was a choice, not an oversight; none is required by spec.md:
 - **Card header gradients hashed from the track name** (deterministic
   character-code sum), so colours are stable across restarts without storing
   presentation data. No external images, fonts, or CDNs anywhere.
-- **Voting limits (3 votes per voter, 5 comments per user per project, 500
-  characters per comment) are design choices**, not spec numbers — enough to
-  express a preference, too few for a single account to move a whole ballot.
-  They live in `app/config.py` and are labeled there as such. What the rules
-  provably do **not** stop — one person registering several accounts
-  (sockpuppets) — is stated plainly in THREAT-MODEL.md.
-- **The ballot is shuffled with a seed derived from the voter's user id** —
-  different voters see different orders, each voter's own order stays stable
-  across refreshes, and it costs three lines instead of storing a per-user
-  permutation.
-- **Hidden results are never built while the window is open.** The `/results`
-  route computes the ranked list (with counts) only after `voting_state`
-  says `closed`; while open the page is a plain message, so no count, rank,
-  or list exists in the HTML to leak through source, whitespace, or a
-  commented-out block.
 
 ## License
 
@@ -221,6 +140,3 @@ MIT (see `LICENSE`).
 - [JUDGING.md](JUDGING.md) — the rubric, the weighted total, the isolation
   guarantee, the integrity layer (COI, quality flags, normalization), and
   honest notes on fixture fairness.
-- [THREAT-MODEL.md](THREAT-MODEL.md) — what could go wrong, what was tested
-  live, the sockpuppet limitation of community voting, and the CSV
-  formula-injection fix.
