@@ -4,9 +4,7 @@
 
 <img src="https://readme-typing-svg.demolab.com?font=Inter&weight=600&size=20&duration=3000&pause=900&color=FF0000&center=true&vCenter=true&width=850&lines=Auditable+Hackathon+Judging+Platform;Judging+Integrity+Engine" alt="Auditable Hackathon Judging Platform | Judging Integrity Engine" />
 
-</div>
-
-**Claimed tiers: T1, T2. Verified tiers: T1, T2** (from a fresh `run.py` run,
+</div>**Claimed tiers: T1, T2. Verified tiers: T1, T2** (from a fresh `run.py` run,
 pasted below). T3 (public voting) and T4 (stretch features) are not built and
 not claimed.
 
@@ -66,7 +64,7 @@ Exactly what's in `requirements.txt`:
 - uvicorn [standard] 0.54.0
 - SQLAlchemy 2.1.1
 - Jinja2 3.1.6
-- python-multipart 0.32
+- python-multipart 0.0.32
 
 SQLite (via Python's standard library) is the database. All HTML is rendered
 server-side by Jinja2; the only client-side JavaScript manipulates the
@@ -122,9 +120,9 @@ Each of these was a choice, not an oversight; none is required by spec.md:
 - **Quality flags are computed on the fly, not stored** — the progress route
   derives `identical_scores` / `no_comments` / `light_workload` from the
   scores table at request time instead of persisting them in a `ReviewFlag`
-  table. With ~130 scores this costs nothing, flags can never go stale, and it
-  matches the route's existing compute-per-request style; the trade-off is no
-  persisted "first detected at" audit trail.
+  table. With ~130 scores this costs nothing, flags can never go stale, and
+  it matches the route's existing compute-per-request style; the trade-off is
+  no persisted "first detected at" audit trail.
 - **Card header gradients hashed from the track name** (deterministic
   character-code sum), so colours are stable across restarts without storing
   presentation data. No external images, fonts, or CDNs anywhere.
