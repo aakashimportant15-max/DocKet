@@ -2,6 +2,8 @@
 
 An auditable hackathon submission and judging platform, built for DOGFOOD 2026.
 
+![Docket Project Gallery](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/01_gallery.png)
+
 **Claimed tiers: T1, T2. Verified tiers: T1, T2** (from a fresh `run.py` run,
 pasted below). T3 (community voting, comments, hidden results, random ballot
 order, anti-cheat rules) is **built and verified by our own `t3_check.py`
@@ -126,6 +128,14 @@ already-rendered gallery DOM (search, filter, grid/list toggle, pagination).
   adjusted toward the judge's own mean). None of it changes the CSV export
   or a judge's own score view: both were verified byte-for-byte identical to
   the pre-layer responses (see JUDGING.md).
+
+![Organizer Progress — Raw Scores](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/02_organizer_progress_raw.png)
+
+![Organizer Progress — Normalized Scores](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/03_organizer_progress_normalized.png)
+![Judge Conflict of Interest Declaration](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/04_coi_declared.png)
+
+![Organizer Conflict of Interest Badge](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/05_conflict_badge_organizer_view.png)
+
 - **T3 — community voting, built and verified by our own checker, not
   claimed.** A participant-only ballot (`/vote`) in a per-voter shuffled
   order with a 3-vote budget and a self-vote block; public comments on
@@ -134,6 +144,16 @@ already-rendered gallery DOM (search, filter, grid/list toggle, pagination).
   organizer-only close/reopen controls on the judging-progress page. The
   official checker has no T3 checks, so this tier is verified by
   `t3_check.py` (10/10 PASS) and deliberately left out of `claimed`.
+
+![Community Voting Ballot](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/06_ballot.png)
+
+![Community Results — Hidden While Voting Is Open](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/07_results_hidden.png)
+
+![Community Results — Revealed After Voting Closes](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/08_results_revealed.png)
+
+![Community Comments](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/09_comments.png)
+
+![Organizer Voting Controls](https://raw.githubusercontent.com/aakashimportant15-max/DockEt/main/screenshots/10_organizer_voting_controls.png)
 - **Not built.** T4 stretch features (REST API for external clients,
   webhooks, certificates, embeddable gallery).
 
